@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to GLH{% endblock %}
+
+{% block content %}
+
+<!-- WELCOME -->
+<section class="welcome">
+    {% if session.user_name %}
+        <h1>Welcome back, {{ session.user_name }}</h1>
+    {% else %}
+        <h1>Welcome to Greenfield Local Hub</h1>
+    {% endif %}
+</section>
+
+<!-- HERO -->
+<section class="hero">
+
+    <div class="hero-overlay">
+        <h2>Support Local Farmers</h2>
+
+        <a href="/products" class="btn-primary">
+            Shop Now
+        </a>
+    </div>
+
+</section>
+
+<section class="about-section">
+<h2>About GLH</h2>
+<P>Greenfield Local Hub is a cooperative marketplace built to bridge the gap between local farmers and the communities they feed. We believe that food tastes better when you know where it comes from — when it's grown with care, harvested fresh, and delivered without the middleman. Our platform connects you directly with independent producers across your region, so every purchase you make supports a real farm, a real family, and a more sustainable food system. Whether you're a customer looking for honest, fresh produce or a farmer ready to bring your harvest to more tables, Greenfield Local Hub is your home.</P>
+</section>
+
+
+<section class="featured">
+    <h2>Featured Products</h2>
+
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+
+            <div class="product-image">
+                {% if product['image_path'] %}
+                    <img src="{{ url_for('static', filename=product['image_path']) }}"
+                         alt="Image for {{ product['product_name'] }}"
+                         style="width:100%; height:100%; object-fit:cover; border-radius:6px;">
+                {% else %}
+                    No image
+                {% endif %}
+            </div>
+
+            <h3>{{ product['product_name'] }}</h3>
+            <p>£{{ product['price'] }}</p>
+            <p>{{ product['stock_level'] }} In Stock.</p>
+
+            <form action="/schedule_order_clicked" method="POST" class="product-order-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="product_id" value="{{ product['product_id'] }}">
+                <button type="submit" class="btn-primary">Schedule Order</button>
+            </form>
+
+        </div>
+        {% else %}
+        <p>No products available</p>
+        {% endfor %}
+    </div>
+
+    <div class="featured-footer">
+        <a href="/products" class="btn-secondary">View More</a>
+    </div>
+
+</section>
+
+<div style="margin-top: 50PX;">
+    <h2>Visit GLH</h2>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d39978.77162117383!2d-0.8274528513672136!3d51.22509509999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48742dcd99658bc3%3A0xfe6b391ce2ed83c4!2sFarnham%20Community%20Farm!5e0!3m2!1sen!2suk!4v1777026329860!5m2!1sen!2suk" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <P style="color: red; font-weight: bold; text-align: center;">NOTE THIS IS A  MAPS FOR A RANDOM FARM, FOR SAMPLE PURPOSE ONLY</P>
+</div>
+
+{% endblock %}

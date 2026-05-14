@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}User Dashboard - GLH{% endblock %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<div class="ud-wrap">
+
+  <!-- ── Sidebar ── -->
+  <aside class="pd-sidebar">
+    <div class="pd-profile">
+      <div class="pd-avatar">
+        {{ session.user_name[0] | upper if session.user_name else 'U' }}
+      </div>
+      <span class="pd-producer-id">Customer</span>
+      <span class="pd-farm-name">{{ user['full_name'] }}</span>
+    </div>
+
+    <ul class="pd-nav">
+      <li>
+        <a href="/dashboard" class="active">
+          <span class="icon"><i class="fa-solid fa-clipboard-list"></i></span>
+          <span>My Orders</span>
+        </a>
+      </li>
+      <li>
+        <a href="/schedule">
+          <span class="icon">📅</span>
+          <span>Schedule Order</span>
+        </a>
+      </li>
+      <li>
+        <a href="/products">
+          <span class="icon">🛒</span>
+          <span>Products</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="pd-signout">
+      <a href="/logout">Sign Out</a>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="pd-main">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="pd-flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Page header -->
+    <div class="pd-page-header">
+      <h2>My Dashboard</h2>
+      <h1>Welcome, {{ user['full_name'] }}</h1>
+      <p>View and manage your orders.</p>
+    </div>
+    <hr class="pd-divider">
+
+    <!-- Loyalty points card -->
+    <div class="ud-loyalty">
+      <div class="ud-loyalty-icon">⭐</div>
+      <div>
+        <span class="ud-loyalty-value">{{ user['loyalty_point'] }}</span>
+        <span class="ud-loyalty-label">Loyalty Points</span>
+      </div>
+    </div>
+
+    <!-- Orders table -->
+    <div class="pd-table-wrap" style="margin-top: 28px;">
+      {% if orders %}
+      <table class="pd-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Item</th>
+            <th>Delivery</th>
+            <th>Status</th>
+            <th>Tracking</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td>
+              <span style="font-weight:600; color:var(--stone); font-size:12px;">
+                #{{ order['order_id'] }}
+              </span>
+            </td>
+            <td style="font-size:13px;">
+              {{ order['collection_date'] if order['collection_date'] else '—' }}
+            </td>
+            <td style="font-weight:500;">{{ order['product_name'] }}</td>
+            <td>
+              <span class="ud-method ud-method-{{ order['delivery_method'] }}">
+                {{ order['delivery_method'] | capitalize }}
+              </span>
+            </td>
+            <td>
+              <span class="ud-status ud-status-{{ order['status'] | lower }}">
+                {{ order['status'] }}
+              </span>
+            </td>
+            <td style="font-size:12px; color:var(--stone); font-family:monospace;">
+              {{ order['tracking'] }}
+            </td>
+            <td>
+              <div class="ud-actions">
+                <form action="/cancel_order" method="POST" style="all:unset;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="order_id" value="{{ order['order_id'] }}">
+                  <button style="padding: 10px; background-color: red;" type="submit" class="ud-btn ud-btn-cancel"
+                          onclick="return confirm('Are you sure you want to cancel this order?')">
+                    Cancel
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% else %}
+      <div class="pd-empty">
+        <div class="pd-empty-icon">📭</div>
+        <p>No orders yet. <a href="/products" style="color:var(--leaf);">Browse products</a> to place your first order.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+<style>
+  
+</style>
+
+{% endblock %}

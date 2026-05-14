@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Customer Orders – {{ producer['farm_name'] }}{% endblock %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<div class="pd-wrap">
+
+  <!-- ── Sidebar ── -->
+  <aside class="pd-sidebar">
+    <div class="pd-profile">
+      <div class="pd-avatar">
+        {{ session.user_name[0] | upper if session.user_name else 'P' }}
+      </div>
+      <span class="pd-producer-id">ID #{{ producer.producer_id }}</span>
+      <span class="pd-farm-name">{{ producer.farm_name }}</span>
+    </div>
+
+    <ul class="pd-nav">
+      <li>
+        <a href="/producer-dashboard">
+          <span class="icon">🌿</span>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="/producer-orders" class="active">
+          <span class="icon">📦</span>
+          <span>Orders</span>
+        </a>
+      </li>
+      <li>
+        <a href="/your-products">
+          <span class="icon">🛒</span>
+          <span>Products</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="pd-signout">
+      <a href="/logout">Sign Out</a>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="pd-main">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="pd-flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="pd-page-header">
+      <h2>Customer Orders</h2>
+      <h1>{{ producer.farm_name }}</h1>
+      <p>All orders placed for your farm's products.</p>
+    </div>
+    <hr class="pd-divider">
+
+    <!-- Summary stats -->
+    <div class="po-stats">
+      <div class="po-stat-card">
+        <span class="po-stat-value">{{ orders | length }}</span>
+        <span class="po-stat-label">Total Orders</span>
+      </div>
+      <div class="po-stat-card">
+        <span class="po-stat-value">
+          £{{ "%.2f" | format(orders | sum(attribute='total_price')) }}
+        </span>
+        <span class="po-stat-label">Total Revenue</span>
+      </div>
+      <div class="po-stat-card">
+        <span class="po-stat-value">
+          {{ orders | selectattr('status', 'equalto', 'Scheduled') | list | length }}
+        </span>
+        <span class="po-stat-label">Scheduled</span>
+      </div>
+    </div>
+
+    <!-- Orders table -->
+    <div class="pd-table-wrap" style="margin-top: 28px;">
+      {% if orders %}
+      <table class="pd-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Total</th>
+            <th>Delivery</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td>
+              <span style="font-weight:600; color:var(--stone); font-size:12px;">
+                #{{ order.order_id }}
+              </span>
+            </td>
+            <td>
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <span style="font-weight:500;">{{ order.full_name }}</span>
+                <span style="font-size:11px; color:var(--stone);">ID: {{ order.user_id }} · {{ order.email }}</span>
+              </div>
+            </td>
+            <td>
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <span style="font-weight:500;">{{ order.product_name }}</span>
+                <span style="font-size:11px; color:var(--stone);">ID: {{ order.product_id }}</span>
+              </div>
+            </td>
+            <td style="font-weight:600;">{{ order.quantity }}</td>
+            <td style="font-weight:600; color:var(--leaf);">
+              £{{ "%.2f" | format(order.total_price) }}
+            </td>
+            <td>
+              <span class="po-method po-method-{{ order.delivery_method }}">
+                {{ order.delivery_method | capitalize }}
+              </span>
+            </td>
+            <td style="font-size:13px; color:var(--stone);">
+              {{ order.collection_date[:10] if order.collection_date else '—' }}
+            </td>
+            <td>
+              <span class="po-status po-status-{{ order.status | lower }}">
+                {{ order.status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% else %}
+      <div class="pd-empty">
+        <div class="pd-empty-icon">📭</div>
+        <p>No orders yet. Orders will appear here when customers purchase your products.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+
+{% endblock %}

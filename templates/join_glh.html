@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Join Greenfield Local Hub{% endblock %}
+
+{% block content %}
+
+
+<div class="join-wrap">
+  <h1>Join Greenfield Local Hub</h1>
+  <p class="subtitle">Connect directly with local farms and fresh produce. Choose how you'd like to be part of the community.</p>
+
+  <div class="join-cards">
+
+    <div class="join-card producer">
+      <div class="join-icon">🌾</div>
+      <h2>Join as a Producer</h2>
+      <p>You're a farmer or grower. List your products, manage orders, and connect with customers in your area.</p>
+      <a href="/producer-signup" class="join-btn">Register your farm</a>
+    </div>
+
+    <div class="join-card customer">
+      <div class="join-icon">🛒</div>
+      <h2>Join as a Customer</h2>
+      <p>You want to buy fresh, local produce directly from farms near you. Schedule orders and earn loyalty points.</p>
+      <a href="/signup" class="join-btn">Create an account</a>
+    </div>
+
+  </div>
+
+  <p class="join-login">Already have an account? <a href="/login">Log in</a></p>
+</div>
+
+{% endblock %}

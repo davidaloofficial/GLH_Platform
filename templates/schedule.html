@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule an order - GLH Cooperative{% endblock %}
+
+{% block content %}
+<h1>Schedule an order</h1>
+<form action="/schedule" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label for="product">Select Product</label>
+    <select id="product" name="product" required>
+        <option value="" disabled {% if not preselected_product %}selected{% endif %}>
+            Select an item...
+        </option>
+        {% for product in products %}
+            <option value="{{ product['product_id'] }}"
+                {% if preselected_product and preselected_product | int == product['product_id'] %}
+                    selected
+                {% endif %}>
+                {{ product['product_name'] }} — £{{ product['price'] }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <label for="quantity">Quantity</label>
+    <input type="number" id="quantity" name="quantity" min="1" max="99" required>
+    <span id="quantity_error" role="alert" style="color:#c0392b; font-size:12px; display:none;">
+        Error: select a quantity from 1-99
+    </span>
+
+    <label for="delivery_method">Delivery Method</label>
+    <select id="delivery_method" name="delivery_method" required>
+        <option value="" disabled selected>Select a delivery method</option>
+        <option value="deliver">Deliver to my address</option>
+        <option value="pickup">Pickup from farm</option>
+    </select>
+
+    <div id="collection_date_container" style="display:none;">
+        <label for="collection_date">Collection Date</label>
+        <input type="date" id="collection_date" name="collection_date"
+               min="{{ today }}" max="{{ max_date }}">
+        <span id="date_error" role="alert" style="color:#c0392b; font-size:12px; display:none;">
+            Error: select a date within the next 30 days
+        </span>
+    </div>
+
+    <button type="submit">Schedule</button>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const product        = document.getElementById("product");
+    const quantity       = document.getElementById("quantity");
+    const deliveryMethod = document.getElementById("delivery_method");
+    const dateInput      = document.getElementById("collection_date");
+    const dateContainer  = document.getElementById("collection_date_container");
+    const quantityError  = document.getElementById("quantity_error");
+    const dateError      = document.getElementById("date_error");
+    const submitBtn      = document.querySelector("button[type='submit']");
+
+    
+    let dateTouched = false;
+
+    function validateForm() {
+        let valid = true;
+
+        // Product
+        if (!product.value) valid = false;
+
+        
+        if (quantity.value === "") {
+            valid = false;
+        } else if (parseInt(quantity.value) < 1 || parseInt(quantity.value) > 99) {
+            quantityError.style.display = "inline";
+            valid = false;
+        } else {
+            quantityError.style.display = "none";
+        }
+
+        
+        if (!deliveryMethod.value) valid = false;
+
+        // Date — only validate and show error if pickup selected AND user has touched the field
+        if (deliveryMethod.value === "pickup") {
+            if (dateTouched) {
+                const selectedDate = new Date(dateInput.value);
+                const today        = new Date();
+                today.setHours(0, 0, 0, 0);
+                const maxDate = new Date();
+                maxDate.setDate(today.getDate() + 30);
+
+                if (!dateInput.value || selectedDate < today || selectedDate > maxDate) {
+                    dateError.style.display = "inline";
+                    valid = false;
+                } else {
+                    dateError.style.display = "none";
+                }
+            } else {
+                
+                if (!dateInput.value) valid = false;
+            }
+        } else {
+            // Deliver selected — clear date state
+            dateError.style.display = "none";
+            dateTouched = false;
+        }
+
+        submitBtn.disabled = !valid;
+    }
+
+    
+    deliveryMethod.addEventListener("change", () => {
+        if (deliveryMethod.value === "pickup") {
+            dateContainer.style.display = "block";
+            dateInput.required = true;
+            dateTouched = false; 
+        } else {
+            dateContainer.style.display = "none";
+            dateInput.required = false;
+            dateInput.value = "";
+            dateError.style.display = "none";
+        }
+        validateForm();
+    });
+
+    
+    dateInput.addEventListener("change", () => {
+        dateTouched = true;
+        validateForm();
+    });
+
+    // Live validation listeners
+    product.addEventListener("change", validateForm);
+    quantity.addEventListener("input", validateForm);
+    deliveryMethod.addEventListener("change", validateForm);
+
+    // Disable submit on load
+    submitBtn.disabled = true;
+});
+</script>
+
+{% endblock %}

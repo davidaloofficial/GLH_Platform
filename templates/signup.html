@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Signup to GLH{% endblock %}
+{% block content %}
+<h1>Signup to GLH</h1>
+
+<form action="/signup" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="full_name">Full name:</label>
+    <input type="text" id="full_name" name="full_name" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" minlength="8" required>
+
+    <ul>
+        <li>Password must not be less than 8 characters</li>
+        <li>Password must contain a special character ((e.g., !@#$%^&*).)</li>
+    </ul>
+
+    <label for="confirm_password">Confirm Password:</label>
+    <input type="password" id="confirm_password" name="confirm_password" minlength="8" required>
+
+    <p>Already have an account? <a href="/login">login</a></p>
+    <p>Or <a href="/producer-signup">signup</a> as a producer</p>
+
+    {% if errors %}
+    <div style="color:red;">
+        <ul>
+            {% for error in errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+    
+    <button type="submit">Signup</button>
+</form>
+{% endblock %}
+    

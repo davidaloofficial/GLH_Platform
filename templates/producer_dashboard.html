@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% block title %}Producer Dashboard – Greenfield Local Hub{% endblock %}
+
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<div class="pd-wrap">
+
+<ul class="pd-nav">
+  <li>
+    <a href="/producer-dashboard" class="active">
+      <span class="icon"><i class="fa-solid fa-leaf"></i></span>
+      <span>Dashboard</span>
+    </a>
+  </li>
+  <li>
+    <a href="/producer-orders">
+      <span class="icon"><i class="fa-solid fa-box"></i></span>
+      <span>Orders</span>
+    </a>
+  </li>
+  <li>
+    <a href="/your-products">
+      <span class="icon"><i class="fa-solid fa-cart-shopping"></i></span>
+      <span>Products</span>
+    </a>
+  </li>
+</ul>
+    <div class="pd-signout">
+      <a href="/logout">Sign Out</a>
+    </div>
+  </aside>
+
+  
+  <main class="pd-main">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="pd-flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="pd-page-header">
+      <h2>Farm Inventory</h2>
+      <h1>{{ producer.farm_name if producer else 'My Farm' }}</h1>
+      <p>Manage and update your farm's product listings and stock levels.</p>
+    </div>
+    <hr class="pd-divider">
+
+    <!-- Add product form -->
+    <form method="POST" enctype="multipart/form-data" action="/producer-add-product">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="pd-add-card">
+        <div class="pd-field-group">
+          <div class="pd-field">
+            <label for="product_name">Product Name</label>
+            <input type="text" id="product_name" name="product_name"
+                   placeholder="e.g. Raw Cow Milk" required>
+          </div>
+          <div class="pd-field">
+            <label for="stock_level">Stock Level</label>
+            <input type="number" id="stock_level" name="stock_level"
+                   placeholder="e.g. 100" min="0" required>
+          </div>
+          <div class="pd-field">
+            <label for="price">Price (£)</label>
+            <input type="number" id="price" name="price"
+                   placeholder="e.g. 21.00" step="0.01" min="0" required>
+          </div>
+          <div class="pd-field">
+            <label for="image">Product Image</label>
+            <input type="file" id="image" name="image" accept="image/*">
+          </div>
+        </div>
+        <button type="submit" class="pd-btn-add">+ New Product</button>
+      </div>
+    </form>
+
+    <!-- Products table -->
+    <div class="pd-table-wrap">
+      {% if products %}
+      <table class="pd-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Stock Level</th>
+            <th>Price</th>
+            <th>Manage</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr id="row-{{ product.product_id }}">
+
+            <!-- Product name -->
+            <td>
+              <div class="pd-product-meta">
+                <span class="pd-product-id">ID: {{ product.product_id }}</span>
+                <span class="pd-product-name display-val">{{ product.product_name }}</span>
+                <input class="pd-inline-input edit-val" type="text"
+                       value="{{ product.product_name }}"
+                       style="display:none;">
+              </div>
+            </td>
+
+            <!-- Stock level -->
+            <td>
+              {% if product.stock_level >= 50 %}
+                <span class="pd-stock high display-val">{{ product.stock_level }}</span>
+              {% elif product.stock_level >= 20 %}
+                <span class="pd-stock medium display-val">{{ product.stock_level }}</span>
+              {% else %}
+                <span class="pd-stock low display-val">{{ product.stock_level }}</span>
+              {% endif %}
+              <input class="pd-inline-input edit-val" type="number"
+                     value="{{ product.stock_level }}"
+                     min="0" style="display:none; width:80px;">
+            </td>
+
+            <!-- Price -->
+            <td>
+              <span class="display-val">£{{ "%.2f" | format(product.price) }}</span>
+              <input class="pd-inline-input edit-val" type="number"
+                     value="{{ product.price }}"
+                     step="0.01" min="0" style="display:none; width:90px;">
+            </td>
+
+            <!-- Actions -->
+            <td>
+              <div class="pd-actions">
+
+                <!-- Edit button (shown by default) -->
+                <button class="pd-btn pd-btn-edit btn-edit"
+                        onclick="enterEdit({{ product.product_id }})"
+                        type="button">
+                  Edit
+                </button>
+
+                <!-- Update form (hidden until edit mode) -->
+                <form method="POST"
+                      action="/producer-update-product/{{ product.product_id }}"
+                      id="update-form-{{ product.product_id }}"
+                      style="display:none;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="product_name" id="hidden-name-{{ product.product_id }}">
+                  <input type="hidden" name="stock_level" id="hidden-stock-{{ product.product_id }}">
+                  <input type="hidden" name="price" id="hidden-price-{{ product.product_id }}">
+                  <button type="submit" class="pd-btn pd-btn-orders">Update</button>
+                </form>
+
+                <!-- Cancel button (hidden until edit mode) -->
+                <button class="pd-btn pd-btn-cancel btn-cancel"
+                        onclick="cancelEdit({{ product.product_id }})"
+                        type="button"
+                        style="display:none;">
+                  Cancel
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% else %}
+      <div class="pd-empty-icon">
+        <i class="fa-solid fa-seedling"></i>
+      </div>
+        <p>No products yet. Add your first product above to get started.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+
+<style>
+  .pd-inline-input {
+    padding: 6px 10px;
+    border: 1.5px solid var(--sand);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    background: #fff;
+    outline: none;
+    transition: border-color .18s;
+  }
+
+  .pd-inline-input:focus { border-color: var(--leaf); }
+
+  .pd-btn-edit   { background: var(--soil); color: var(--cream); }
+  .pd-btn-cancel { background: var(--parchment); color: var(--stone); border: 1px solid var(--sand); }
+
+  tr.editing { background: #fafff7 !important; }
+</style>
+
+<script>
+  function enterEdit(id) {
+    const row = document.getElementById('row-' + id);
+
+    // Hide display values, show inputs
+    row.querySelectorAll('.display-val').forEach(el => el.style.display = 'none');
+    row.querySelectorAll('.edit-val').forEach(el => el.style.display = 'inline-block');
+
+    // Show update form and cancel, hide edit button
+    document.getElementById('update-form-' + id).style.display = 'inline';
+    row.querySelector('.btn-edit').style.display = 'none';
+    row.querySelector('.btn-cancel').style.display = 'inline-block';
+
+    row.classList.add('editing');
+
+    // On submit, copy inline input values into the hidden form fields
+    const form = document.getElementById('update-form-' + id);
+    form.addEventListener('submit', function() {
+      const inputs = row.querySelectorAll('.edit-val');
+      document.getElementById('hidden-name-' + id).value  = inputs[0].value;
+      document.getElementById('hidden-stock-' + id).value = inputs[1].value;
+      document.getElementById('hidden-price-' + id).value = inputs[2].value;
+    });
+  }
+
+  function cancelEdit(id) {
+    const row = document.getElementById('row-' + id);
+
+    // Restore display values, hide inputs
+    row.querySelectorAll('.display-val').forEach(el => el.style.display = '');
+    row.querySelectorAll('.edit-val').forEach(el => el.style.display = 'none');
+
+    // Restore buttons
+    document.getElementById('update-form-' + id).style.display = 'none';
+    row.querySelector('.btn-edit').style.display = 'inline-block';
+    row.querySelector('.btn-cancel').style.display = 'none';
+
+    row.classList.remove('editing');
+  }
+</script>
+
+{% endblock %}

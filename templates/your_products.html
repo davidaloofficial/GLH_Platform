@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Your Products – {{ producer['farm_name'] }}{% endblock %}
+
+{% block content %}
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="yp-header">
+  <h1>{{ producer['farm_name'] }}</h1>
+  <p>{{ products | length }} product{{ 's' if products | length != 1 }} listed — <a href="/producer-dashboard" style="color:var(--leaf);">manage inventory</a></p>
+</div>
+
+{% if products %}
+<div class="yp-grid">
+  {% for product in products %}
+  <div class="yp-card">
+
+    <div class="yp-image">
+      {% if product['image_path'] %}
+        <img src="{{ url_for('static', filename=product['image_path']) }}"
+             alt="{{ product['product_name'] }}">
+      {% else %}
+        No image
+      {% endif %}
+    </div>
+
+    <div class="yp-info">
+      <span class="yp-name">{{ product['product_name'] }}</span>
+      <span class="yp-price">£{{ "%.2f" | format(product['price']) }}</span>
+      <span class="yp-stock">Stock: {{ product['stock_level'] }} units</span>
+    </div>
+
+    <div class="yp-actions">
+      <a href="/producer-orders?product={{ product['product_id'] }}" class="yp-btn yp-btn-orders">Orders for thiis product</a>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="yp-empty">
+  <div class="yp-empty-icon">🌱</div>
+  <p>No products listed yet. <a href="/producer-dashboard" style="color:var(--leaf);">Add your first product</a></p>
+</div>
+{% endif %}
+
+{% endblock %}

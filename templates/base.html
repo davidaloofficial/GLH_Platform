@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %}Greenfield Local Hub{% endblock %}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        
+    </head>
+    <body>
+        <header>
+            <nav>
+                <div class="logo">
+                    <a href="/" >
+                        <img src="{{ url_for('static', filename='images/glh_logo.png') }}"
+                        alt="Greenfield Local Hub">
+                        
+                    </a>
+                </div>
+                
+                <ul class="nav_links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/producers">Our Producers</a></li>
+                    {% if session.user_name %}
+                        {% if session.is_producer %}
+                            <li><a href="/your-products">Your Products</a></li>
+                        {% else %}
+                            <li><a href="/products">Our Products</a></li>
+                            <li><a href="/schedule">Schedule Order</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li><a href="/products">Our Products</a></li>
+                        <li><a href="/join-glh">Join GLH</a></li>
+                    {% endif %}
+                    
+                    {% if session.user_name %}
+                        {% if session.is_producer %}
+                            <li><a href="/producer-dashboard">Dashboard</a></li>
+                        {% else %}
+                            <li><a href="/dashboard">Dashboard</a></li>
+                            <li><a href="/producer-signup">Partner with us</a></li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+               
+
+                <div class="nav_right">
+                     
+                    {% if session.user_name %}
+                        <a href="/logout">Logout</a>
+                    {% else %}
+                        <a href="/login">Login</a>
+                    {% endif %}
+                </div>
+            </nav>
+         </header>
+
+            <main>
+            {% block content %}
+            {% endblock %}
+            </main>
+
+            <footer>
+                <div class="footer_container">
+                    <div class="footer_section">
+                        <h3>Shop</h3>
+                        <ul>
+                        <li><a>Fruits</a></li>
+                        <li><a>Gift Cards</a></li>
+                        <li><a>Subscription</a></li>
+                        </ul>
+                    </div>
+                    
+
+                    <div class="footer_section">
+                        <h3>Info</h3>
+                        <ul>
+                        <li><a>Producers</a></li>
+                        <li><a>Methods</a></li>
+                        <li><a>Newsletter</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer_section">
+                        <h3>Let's Connect!</h3>
+                        <ul>
+                        <li><a>[Icon]</a></li>
+                        <li><a>[Icon]</a></li>
+                        <li><a>[Icon]</a></li>
+                        </ul>
+                        <p>©Greenfield Local Hub 2026</p>
+                    </div>
+                </div>
+            </footer>
+       
+        
+        
+        <script src="" async defer></script>
+    </body>
+</html>

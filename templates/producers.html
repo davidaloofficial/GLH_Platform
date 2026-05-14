@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Producers - GLH Cooperative{% endblock %}
+
+{% block content %}
+<h1>Our Producers</h1>
+<p>Meet your local farmers</p>
+{% for producer in producers %}
+<div style="border: 1px solid; margin-bottom: 20px; padding: 10px;">
+    <div style="height: 150px; width: 150px; background-color: grey; text-align: center;">[Producer Image]</div>
+
+    <h2>{{ producer['farm_name'] }}</h2>
+    <h3>{{ producer['description'] }}</h3>
+
+
+</div>
+{% else %}
+<p>No producer found</p>
+{% endfor %}
+
+{% if session.is_producer %}     
+{% else %}                    
+<a href="/producers_signup" class="btn-secondary">Become a producer today.</a>
+{% endif %}  
+
+{% endblock %}
+    
