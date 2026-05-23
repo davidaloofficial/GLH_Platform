@@ -24,6 +24,7 @@ try:
                 user_id INTEGER NOT NULL UNIQUE,
                 farm_name TEXT NOT NULL,
                 description TEXT NOT NULL,
+                image_path TEXT,
                 FOREIGN KEY (user_id) REFERENCES user (user_id))''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS products (
@@ -60,11 +61,11 @@ try:
                 ]
                 )
 
-    cursor.executemany('''INSERT OR IGNORE INTO producers (user_id, farm_name, description)
-            VALUES (?, ?, ?)''',
+    cursor.executemany('''INSERT OR IGNORE INTO producers (user_id, farm_name, description, image_path)
+            VALUES (?, ?, ?, ?)''',
             [
-                (1, 'Grace & Mercy Farms', 'Feed the nation now'),
-                (2, 'Pinnacle Farms', 'Your very local farmers')
+                (1, 'Grace & Mercy Farms', 'Feed the nation now', 'images/producers/grace_mercy_farms.png'),
+                (2, 'Pinnacle Farms', 'Your very local farmers', 'images/producers/pinnacle_farms.png')
             ]
             )
 

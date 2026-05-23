@@ -27,13 +27,13 @@
       </li>
       <li>
         <a href="/schedule">
-          <span class="icon">📅</span>
+          <span class="icon"><i class="fa-regular fa-calendar"></i></span>
           <span>Schedule Order</span>
         </a>
       </li>
       <li>
         <a href="/products">
-          <span class="icon">🛒</span>
+          <span class="icon"><i class="fa-solid fa-cart-shopping"></i></span>
           <span>Products</span>
         </a>
       </li>
@@ -65,7 +65,7 @@
 
     <!-- Loyalty points card -->
     <div class="ud-loyalty">
-      <div class="ud-loyalty-icon">⭐</div>
+      <div class="ud-loyalty-icon"><i class="fa-solid fa-star" style="color: #f59e0b;"></i></div>
       <div>
         <span class="ud-loyalty-value">{{ user['loyalty_point'] }}</span>
         <span class="ud-loyalty-label">Loyalty Points</span>
@@ -131,7 +131,7 @@
 
       {% else %}
       <div class="pd-empty">
-        <div class="pd-empty-icon">📭</div>
+        <div class="pd-empty-icon"><i class="fa-solid fa-box-open"></i></div>
         <p>No orders yet. <a href="/products" style="color:var(--leaf);">Browse products</a> to place your first order.</p>
       </div>
       {% endif %}

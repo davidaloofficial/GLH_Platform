@@ -7,7 +7,15 @@
 <p>Meet your local farmers</p>
 {% for producer in producers %}
 <div style="border: 1px solid; margin-bottom: 20px; padding: 10px;">
-    <div style="height: 150px; width: 150px; background-color: grey; text-align: center;">[Producer Image]</div>
+    <div style="height: 150px; width: 150px;">
+        {% if producer['image_path'] %}
+            <img src="{{ url_for('static', filename=producer['image_path']) }}"
+                alt="Image for {{ producer['farm_name'] }}"
+                style="width:100%; height:100%; object-fit:cover; border-radius:6px;">
+        {% else %}
+            No image
+        {% endif %}
+    </div>
 
     <h2>{{ producer['farm_name'] }}</h2>
     <h3>{{ producer['description'] }}</h3>
